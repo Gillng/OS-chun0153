@@ -62,11 +62,9 @@ void syscall13(){exit_hypervisor ();}
 void syscall14(){exit_hypervisor ();}
 void syscall15(){exit_hypervisor ();}
 void syscall16(){exit_hypervisor ();}
-void syscall17(){exit_hypervisor ();}
-void syscall18(){exit_hypervisor ();}
+void securentr(){exit_hypervisor ();}
+void securexit(){exit_hypervisor ();}
 void syscall19(){exit_hypervisor ();}
-//void securentr(){exit_hypervisor ();}
-//void securexit(){exit_hypervisor ();}
 void syscall20(){exit_hypervisor ();}
 void syscall21(){exit_hypervisor ();}
 void syscall22(){exit_hypervisor ();}
@@ -171,11 +169,9 @@ export struct SysCall[] SYSCALLS = {
    {JMP, &syscall14, NOP},
    {JMP, &syscall15, NOP},
    {JMP, &syscall16, NOP},
-   {JMP, &syscall17, NOP},
-   {JMP, &syscall18, NOP},
+   {JMP, &securentr, NOP},
+   {JMP, &securexit, NOP},
    {JMP, &syscall19, NOP},
-   //{JMP, &securentr, NOP},
-   //{JMP, &securexit, NOP},
    {JMP, &syscall20, NOP},
    {JMP, &syscall21, NOP},
    {JMP, &syscall22, NOP},
