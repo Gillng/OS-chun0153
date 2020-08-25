@@ -41,14 +41,13 @@ void print_to_screen(char *message){
 
 	while (*message) {
 		*(current_screen_line + current_screen_x) = *message++;
+		current_screen_line++;
 	}
 }
 	
-void print_newline () {
-	
-	current_screen_line++;
+void print_newline () {	
+	current_screen_line+40;
 	current_screen_x = 0;
-	
 }
 
 void exit_hypervisor () {
