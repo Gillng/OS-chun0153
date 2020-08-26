@@ -108,25 +108,26 @@ void reset(){
   memset(SCREEN, ' ', 40*25);
   memset(COLS, WHITE, 40*25);
   
-  //char* sc = SCREEN+40;
-  char* msg = MESSAGE;
+  char* sc = SCREEN+40;
+  char* message = MESSAGE;
 
-  /* while(*msg){
-    *sc++ = *msg++;
+  while(*message){
+    *sc++ = *message++;
   } 
-  */ 
 
-  /* while(true){
+  while(true){
     if(*RASTER==54 ||*RASTER==66){
       *BGCOL=WHITE;
     }else{
       *BGCOL=BLACK;
     }
-  } */ 
-  exit_hypervisor ();
+  }
+  
   print_to_screen("chun0153 operating system starting...");
   print_newline();
   print_to_screen("testing hardware");
+  exit_hypervisor ();
+
 }
   
 void pagfault(){exit_hypervisor ();}
