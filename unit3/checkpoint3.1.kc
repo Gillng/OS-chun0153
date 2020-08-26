@@ -124,9 +124,9 @@ void reset(){
     }
   } */ 
   exit_hypervisor ();
-  //print_to_screen("chun0153 operating system starting...");
-  //print_newline();
-  //print_to_screen("testing hardware");
+  print_to_screen("chun0153 operating system starting...");
+  print_newline();
+  print_to_screen("testing hardware");
 }
   
 void pagfault(){exit_hypervisor ();}

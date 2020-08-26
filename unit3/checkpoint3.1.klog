@@ -12,7 +12,7 @@ Syscall-segment:
   $8000-$81df Syscall
 
 Code-segment:
-  $8200-$8340 Code
+  $8200-$8385 Code
 
 Data-segment:
 
