@@ -27,10 +27,20 @@ void print_to_screen(char *message){
 }
 	
 void print_newline () {	
-	current_screen_line+40;
+	current_screen_line += 40;
 	current_screen_x = 0;
 }
 
+void print_raster_lines () {
+  while(true){
+    if(*RASTER==54 ||*RASTER==66){
+      *BGCOL=WHITE;
+    }else{
+      *BGCOL=BLACK;
+    }
+    }
+    }
+    
 void main(){
 }
 
@@ -108,20 +118,9 @@ void reset(){
   memset(SCREEN, ' ', 40*25);
   memset(COLS, WHITE, 40*25);
   
-  char* sc = SCREEN+40;
-  char* message = MESSAGE;
-
-  while(*message){
+  /* while(*message){
     *sc++ = *message++;
-  } 
-
-  while(true){
-    if(*RASTER==54 ||*RASTER==66){
-      *BGCOL=WHITE;
-    }else{
-      *BGCOL=BLACK;
-    }
-  }
+  } */
   
   print_to_screen("chun0153 operating system starting...");
   print_newline();

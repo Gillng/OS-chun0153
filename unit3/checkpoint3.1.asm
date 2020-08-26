@@ -5,11 +5,13 @@
 .segmentdef Data [startAfter="Code", min=$8200, max=$bdff]
 .segmentdef Stack [min=$be00, max=$beff, fill]
 .segmentdef Zeropage [min=$bf00, max=$bfff, fill]
+  .label RASTER = $d012
   .label VIC_MEMORY = $d018
   .label SCREEN = $400
+  .label BGCOL = $d021
   .label COLS = $d800
+  .const BLACK = 0
   .const WHITE = 1
-  .label current_screen_line = $400
   .const JMP = $4c
   .const NOP = $ea
 .segment Code
@@ -50,6 +52,8 @@ pagfault: {
     rts
 }
 reset: {
+    .label sc = 4
+    .label message = 2
     lda #$14
     sta VIC_MEMORY
     ldx #' '
@@ -72,50 +76,46 @@ reset: {
     lda #>$28*$19
     sta.z memset.num+1
     jsr memset
-    jsr exit_hypervisor
-    lda #<message
-    sta.z print_to_screen.message
-    lda #>message
-    sta.z print_to_screen.message+1
-    jsr print_to_screen
-    jsr print_newline
-    lda #<message1
-    sta.z print_to_screen.message
-    lda #>message1
-    sta.z print_to_screen.message+1
-    jsr print_to_screen
-    rts
-  .segment Data
-    message: .text "chun0153 operating system starting..."
-    .byte 0
-    message1: .text "testing hardware"
-    .byte 0
-}
-.segment Code
-//char[] MESSAGE = "checkpoint 3.1 by chun0153";
-// print_to_screen(byte* zeropage(2) message)
-print_to_screen: {
-    .label message = 2
-    ldx #0
+    lda #<SCREEN+$28
+    sta.z sc
+    lda #>SCREEN+$28
+    sta.z sc+1
+    lda #<MESSAGE
+    sta.z message
+    lda #>MESSAGE
+    sta.z message+1
   __b1:
     ldy #0
     lda (message),y
     cmp #0
     bne __b2
-    rts
+  __b3:
+    lda #$36
+    cmp RASTER
+    beq __b4
+    lda #$42
+    cmp RASTER
+    beq __b4
+    lda #BLACK
+    sta BGCOL
+    jmp __b3
+  __b4:
+    lda #WHITE
+    sta BGCOL
+    jmp __b3
   __b2:
     ldy #0
     lda (message),y
-    sta current_screen_line,x
+    sta (sc),y
+    inc.z sc
+    bne !+
+    inc.z sc+1
+  !:
     inc.z message
     bne !+
     inc.z message+1
   !:
-    inx
     jmp __b1
-}
-print_newline: {
-    rts
 }
 // Copies the character c (an unsigned char) to the first num characters of the object pointed to by the argument str.
 // memset(void* zeropage(4) str, byte register(X) c, word zeropage(2) num)
@@ -411,6 +411,9 @@ syscall00: {
     jsr exit_hypervisor
     rts
 }
+.segment Data
+  MESSAGE: .text "chun0153 operating system starting..."
+  .byte 0
 .segment Syscall
   SYSCALLS: .byte JMP
   .word syscall00
