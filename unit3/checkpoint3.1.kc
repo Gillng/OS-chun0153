@@ -16,32 +16,13 @@ unsigned char current_screen_x = 0;
 char[] MESSAGE = "checkpoint 3.1 by chun0153";
 
 void main(){
-
-  *VIC_MEMORY = 0x14;
-  memset(SCREEN, ' ', 40*25);
-  memset(COLS, WHITE, 40*25);
-  
-  char* sc = SCREEN+40;
-  char* msg = MESSAGE;
-
-  while(*msg){
-    *sc++ = *msg++;
-  }
-
-  while(true){
-    if(*RASTER==54 ||*RASTER==66){
-      *BGCOL=WHITE;
-    }else{
-      *BGCOL=BLACK;
-    }
-  }
 }
 
 void print_to_screen(char *message){
 
 	while (*message) {
 		*(current_screen_line + current_screen_x) = *message++;
-		current_screen_line++;
+		current_screen_x++;
 	}
 }
 	
@@ -53,15 +34,6 @@ void print_newline () {
 void exit_hypervisor () {
 	*(unsigned char *)$D67F = $01;
 	}
-
-/*void syscall1(){
-  *(SCREEN+79) = '>';
-  exit_hypervisor ();
-}
-
-void syscall2(){
-  *(SCREEN+78) = '<';
-  exit_h*/
 
 void syscall00(){exit_hypervisor ();}
 void syscall01(){exit_hypervisor ();}
@@ -129,7 +101,7 @@ void syscall3E(){exit_hypervisor ();}
 void syscall3F(){exit_hypervisor ();}
 
 void reset(){
-	*VIC_MEMORY = 0x14;
+	/* *VIC_MEMORY = 0x14;
   memset(SCREEN, ' ', 40*25);
   memset(COLS, WHITE, 40*25);
   
@@ -138,7 +110,8 @@ void reset(){
 
   while(*msg){
     *sc++ = *msg++;
-  }
+  } 
+  */ 
 
   while(true){
     if(*RASTER==54 ||*RASTER==66){
