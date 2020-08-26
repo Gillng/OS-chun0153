@@ -113,7 +113,7 @@ void reset(){
   } 
   */ 
   
-  char* msg = MESSAGE;
+  char* message = MESSAGE;
 
   while(true){
     if(*RASTER==54 ||*RASTER==66){
