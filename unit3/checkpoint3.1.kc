@@ -112,6 +112,8 @@ void reset(){
     *sc++ = *msg++;
   } 
   */ 
+  
+  char* msg = MESSAGE;
 
   while(true){
     if(*RASTER==54 ||*RASTER==66){
