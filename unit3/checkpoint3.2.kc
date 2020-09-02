@@ -66,9 +66,9 @@ void test_memory (){
 			if (!is_mem_error) {
 				*p = value;
 				if (*p != value) {
-					print_newline();
-					print_to_screen ("memory error at $");
-					print_hex(mem_start);
+					// print_newline();
+					// print_to_screen ("memory error at $");
+					// print_hex(mem_start);
 					is_mem_error = true;
 					// mem_end--;
 					break;
