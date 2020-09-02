@@ -61,26 +61,17 @@ void print_hex (unsigned short value) {
 
 void test_memory (){
 	for (mem_start; mem_start < $7fff; mem_start++) {
-		// p = mem_start;
+		
 		for (char value = 0; value < 255; value++) {
 			if (!is_mem_error) {
 				*p = value;
+				print_newline;
+				print_to_screen ("memory error at $");
+				print_hex(mem_start);
 				if (*p != value) {
-					// print_newline();
-					// print_to_screen ("memory error at $");
-					// print_hex(mem_start);
 					is_mem_error = true;
-					// mem_end--;
 					break;
 				}
-				
-				/* else {
-					print_to_screen ("memory found at $");
-					print_hex(mem_start);
-					print_to_screen(" - $");
-					print_hex(mem_end);
-				} */
-				
 			}
 		}
 		if (is_mem_error) {
