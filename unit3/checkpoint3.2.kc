@@ -67,7 +67,7 @@ void test_memory (){
 				*p = value;
 				if (*p != value) {
 					print_to_screen ("memory error at $");
-					print_hex(mem_end);
+					print_hex(mem_start);
 					print_newline();
 					is_mem_error = true;
 					// mem_end--;
@@ -93,6 +93,7 @@ void test_memory (){
 	print_hex(mem_start);
 	print_to_screen (" - $");
 	print_hex (mem_end);
+	print_to_screen ("finished testing hardware");
 }
     
 void main(){
