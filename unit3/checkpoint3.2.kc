@@ -40,11 +40,12 @@ void print_raster_lines () {
   while(true){
     if(*RASTER==54 ||*RASTER==66){
       *BGCOL=WHITE;
-    }else{
+    }
+    else{
       *BGCOL=BLACK;
     }
-    }
-    }
+  }
+}
     
 void print_hex (unsigned short value) {
 	char[5] hex;
@@ -59,8 +60,8 @@ void print_hex (unsigned short value) {
 }
 
 void test_memory (){
-	for (mem_end; mem_end < $7fff; mem_end++) {
-		p = mem_end;
+	for (mem_start; mem_start < $7fff; mem_start++) {
+		// p = mem_start;
 		for (char value = 0; value < 255; value++) {
 			if (!is_mem_error) {
 				*p = value;
@@ -69,25 +70,29 @@ void test_memory (){
 					print_hex(mem_end);
 					print_newline();
 					is_mem_error = true;
-					mem_end--;
+					// mem_end--;
 					break;
 				}
+				
 				/* else {
 					print_to_screen ("memory found at $");
 					print_hex(mem_start);
 					print_to_screen(" - $");
 					print_hex(mem_end);
 				} */
+				
 			}
 		}
 		if (is_mem_error) {
+			mem_end = (unsigned short) p;
 			break;
 		}
 	}
 	print_newline ();
+	print_to_screen ("memory found at $");
+	print_hex(mem_start);
 	print_to_screen (" - $");
 	print_hex (mem_end);
-	
 }
     
 void main(){
@@ -171,14 +176,14 @@ void reset(){
     *sc++ = *message++;
   } */
   
-  /* print_to_screen("chun0153 operating system starting...");
+  print_to_screen("chun0153 operating system starting...");
   print_newline();
-  print_to_screen("testing hardware"); */
+  print_to_screen("testing hardware");
   
   test_memory ();
-  print_to_screen ("the value is $");
-  print_hex($1234);
-  print_newline ();
+  //print_to_screen ("the value is $");
+  //print_hex($1234);
+  //print_newline ();
   
   exit_hypervisor ();
 
