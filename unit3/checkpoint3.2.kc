@@ -64,15 +64,15 @@ void test_memory (){
 		
 		for (char value = 0; value < 255; value++) {
 			if (!is_mem_error) {
-				*p = value;
-				print_newline;
-				print_to_screen ("memory error at $");
-				print_hex(mem_start);
+				*p = value; }
+				
 				if (*p != value) {
 					is_mem_error = true;
+					print_newline;
+					print_to_screen ("memory error at $");
+					print_hex(mem_start);
 					break;
 				}
-			}
 		}
 		if (is_mem_error) {
 			mem_end = (unsigned short) p;
