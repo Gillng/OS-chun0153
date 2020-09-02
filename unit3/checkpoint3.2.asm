@@ -18,14 +18,15 @@
   .label mem_end = 5
   .label current_screen_line_25 = 9
   .label is_mem_error = 4
-  .label current_screen_line_43 = 9
-  .label current_screen_line_53 = 9
+  .label current_screen_line_44 = 9
   .label current_screen_line_54 = 9
   .label current_screen_line_55 = 9
   .label current_screen_line_56 = 9
-  .label current_screen_line_59 = 9
-  .label current_screen_line_60 = 9
+  .label current_screen_line_57 = 9
+  .label current_screen_line_58 = 9
   .label current_screen_line_61 = 9
+  .label current_screen_line_62 = 9
+  .label current_screen_line_63 = 9
   lda #<0
   sta.z p
   sta.z p+1
@@ -108,9 +109,9 @@ reset: {
     sta.z current_screen_line+1
     jsr print_newline
     lda.z current_screen_line
-    sta.z current_screen_line_53
+    sta.z current_screen_line_54
     lda.z current_screen_line+1
-    sta.z current_screen_line_53+1
+    sta.z current_screen_line_54+1
     lda #0
     sta.z current_screen_x
     lda #<message1
@@ -151,9 +152,9 @@ test_memory: {
   __b10:
     jsr print_newline
     lda.z current_screen_line
-    sta.z current_screen_line_55
+    sta.z current_screen_line_56
     lda.z current_screen_line+1
-    sta.z current_screen_line_55+1
+    sta.z current_screen_line_56+1
     lda #0
     sta.z current_screen_x
     lda #<message1
@@ -166,14 +167,14 @@ test_memory: {
     lda.z mem_start+1
     sta.z print_hex.value+1
     lda.z current_screen_line
-    sta.z current_screen_line_60
+    sta.z current_screen_line_62
     lda.z current_screen_line+1
-    sta.z current_screen_line_60+1
+    sta.z current_screen_line_62+1
     jsr print_hex
     lda.z current_screen_line
-    sta.z current_screen_line_56
+    sta.z current_screen_line_57
     lda.z current_screen_line+1
-    sta.z current_screen_line_56+1
+    sta.z current_screen_line_57+1
     lda #<message2
     sta.z print_to_screen.message
     lda #>message2
@@ -184,10 +185,19 @@ test_memory: {
     lda.z mem_end+1
     sta.z print_hex.value+1
     lda.z current_screen_line
-    sta.z current_screen_line_61
+    sta.z current_screen_line_63
     lda.z current_screen_line+1
-    sta.z current_screen_line_61+1
+    sta.z current_screen_line_63+1
     jsr print_hex
+    lda.z current_screen_line
+    sta.z current_screen_line_58
+    lda.z current_screen_line+1
+    sta.z current_screen_line_58+1
+    lda #<message3
+    sta.z print_to_screen.message
+    lda #>message3
+    sta.z print_to_screen.message+1
+    jsr print_to_screen
     rts
   // p = mem_start;
   b1:
@@ -221,22 +231,22 @@ test_memory: {
     cmp (p),y
     beq __b4
     lda.z current_screen_line
-    sta.z current_screen_line_54
+    sta.z current_screen_line_55
     lda.z current_screen_line+1
-    sta.z current_screen_line_54+1
+    sta.z current_screen_line_55+1
     lda #<message
     sta.z print_to_screen.message
     lda #>message
     sta.z print_to_screen.message+1
     jsr print_to_screen
-    lda.z current_screen_line
-    sta.z current_screen_line_59
-    lda.z current_screen_line+1
-    sta.z current_screen_line_59+1
-    lda #<$8000
+    lda.z mem_start
     sta.z print_hex.value
-    lda #>$8000
+    lda.z mem_start+1
     sta.z print_hex.value+1
+    lda.z current_screen_line
+    sta.z current_screen_line_61
+    lda.z current_screen_line+1
+    sta.z current_screen_line_61+1
     jsr print_hex
     jsr print_newline
     lda #0
@@ -253,6 +263,8 @@ test_memory: {
     message1: .text "memory found at $"
     .byte 0
     message2: .text " - $"
+    .byte 0
+    message3: .text "finished testing hardware"
     .byte 0
 }
 .segment Code
