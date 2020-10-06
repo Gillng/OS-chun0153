@@ -88,12 +88,12 @@ void test_memory (){
 	print_to_screen ("finished testing hardware");
 }
 
-void detect_devices () {
+char detect_devices () {
 	unsigned short mem = $D000;
 	unsigned char found;
 	
 	while (mem < $DFF0 && found!=1) {
-		is_found = detect_vicii (mem);
+		found = detect_vicii (mem);
 		if (found == 1) {
 			print_newline();
 			print_to_screen ("vic-ii detected at $");
@@ -114,6 +114,7 @@ char detect_vicii (unsigned short address) {
 	unsigned char v1, v2;
 	p = address;
 	unsigned short i;
+	
 	v1 = p[$12]; // Read start address + $12
 	// Wait at least 64 microseconds
 	for (i = 1; i < 1000; i++) continue;
@@ -125,7 +126,7 @@ char detect_vicii (unsigned short address) {
 		
 		else {
 		return 0;
-		// print_to_screen ("Seems to be a VIC-II here");
+		// print_to_screen ("seems to be vic-ii here");
 		}
 }
     
