@@ -215,10 +215,14 @@ void reset(){
   print_newline();
   print_to_screen("testing hardware");
   
-  test_memory ();
+  //CHECKPOINT 3.2
+  //test_memory ();
   //print_to_screen ("the value is $");
   //print_hex($1234);
   //print_newline ();
+  
+  //CHECKPOINT 3.3
+  detect_devices (); 
   
   exit_hypervisor ();
 
