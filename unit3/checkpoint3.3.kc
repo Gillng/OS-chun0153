@@ -89,8 +89,26 @@ void test_memory (){
 }
 
 void detect_devices () {
-	char detect_vicii (unsigned short address);
+	unsigned short mem = $D000;
+	unsigned char found;
 	
+	while (mem < $DFF0 && found!=1) {
+		is_found = detect_vicii (mem);
+		if (found == 1) {
+			print_newline();
+			print_to_screen ("vic-ii detected at $");
+			print_hex(mem);
+		}
+		mem += $10;
+	}
+	
+		print_newline();
+		print_to_screen ("finished probing devices");
+		return found;
+		
+}
+
+char detect_vicii (unsigned short address) {	
 	//Pointer where VIC-II is suspected to be
 	volatile unsigned char *p;
 	unsigned char v1, v2;
@@ -101,15 +119,14 @@ void detect_devices () {
 	for (i = 1; i < 1000; i++) continue;
 	v2 = p[$12]; // Read again
 	
-	if (v2 > v1) {
-		print_to_screem ("Seems to be a VIC-II here");
-	}
-	
-	print_newline;
-	print_to_screen ("vicii found at $");
-	print_hex(
-	print_newline();
-	print_to_screen ("finished probing for devices");
+	if (v2 > v1 || v2 < v1) {
+		return 1;
+		}
+		
+		else {
+		return 0;
+		// print_to_screen ("Seems to be a VIC-II here");
+		}
 }
     
 void main(){
