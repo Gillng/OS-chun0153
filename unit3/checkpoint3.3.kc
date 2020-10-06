@@ -110,9 +110,9 @@ void detect_devices () {
 
 char detect_vicii (unsigned short address) {	
 	//Pointer where VIC-II is suspected to be
-	volatile unsigned char *p;
+	//volatile unsigned char *p;
 	unsigned char v1, v2;
-	
+	p = address;
 	unsigned short i;
 	v1 = p[$12]; // Read start address + $12
 	// Wait at least 64 microseconds
