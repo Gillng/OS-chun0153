@@ -170,10 +170,13 @@ void reset(){
   current_screen_line = $0400;
   current_screen_x = 0;
   
+  /*
   while(*msg){
     *sc++ = *msg++;
   }
-  
+  */
+  print_newline ();
+  print_to_screen ("checkpoint4.2 by chun0153");  
   start_simple_program ();
   
   exit_hypervisor ();
