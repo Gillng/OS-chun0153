@@ -12,7 +12,27 @@ const char WHITE = 1;
 
 char[] MESSAGE = "checkpoint4.1 by chun0153";
 
-void main () {}
+void main(){
+
+  *VIC_MEMORY = 0x14;
+  memset(SCREEN, ' ', 40*25);
+  memset(COLS, WHITE, 40*25);
+  
+  char* sc = SCREEN+40;
+  char* msg = MESSAGE;
+
+  while(*msg){
+    *sc++ = *msg++;
+  }
+
+  while(true){
+    if(*RASTER==54 ||*RASTER==66){
+      *BGCOL=WHITE;
+    }else{
+      *BGCOL=BLACK;
+    }
+  }
+}
 
 void start_simple_program () {
 	*(unsigned char *)$0300 = $80;
@@ -116,8 +136,8 @@ void syscall59(){exit_hypervisor ();}
 void syscall60(){exit_hypervisor ();}
 void syscall61(){exit_hypervisor ();}
 void syscall62(){exit_hypervisor ();}
-void syscall63(){exit_hypervisor ();}
-void syscall64(){exit_hypervisor ();}
+//void syscall63(){exit_hypervisor ();}
+//void syscall64(){exit_hypervisor ();}
 
 void reset(){
 	*VIC_MEMORY = 0x14;
@@ -228,8 +248,8 @@ export struct SysCall[] SYSCALLS = {
    {JMP, &syscall60, NOP},
    {JMP, &syscall61, NOP},
    {JMP, &syscall62, NOP},
-   {JMP, &syscall63, NOP},
-   {JMP, &syscall64, NOP}
+   //{JMP, &syscall63, NOP},
+   //{JMP, &syscall64, NOP}
    };
    
 export align(0x100) struct SysCall[] TRAPS = {
