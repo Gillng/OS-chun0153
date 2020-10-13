@@ -16,6 +16,46 @@
   .const NOP = $ea
 .segment Code
 main: {
+    rts
+}
+undefined_trap: {
+    jsr exit_hypervisor
+    rts
+}
+exit_hypervisor: {
+    lda #1
+    sta $d67f
+    rts
+}
+cpukil: {
+    jsr exit_hypervisor
+    rts
+}
+reserved: {
+    jsr exit_hypervisor
+    rts
+}
+vf011wr: {
+    jsr exit_hypervisor
+    rts
+}
+vf011rd: {
+    jsr exit_hypervisor
+    rts
+}
+alttabkey: {
+    jsr exit_hypervisor
+    rts
+}
+restorkey: {
+    jsr exit_hypervisor
+    rts
+}
+pagfault: {
+    jsr exit_hypervisor
+    rts
+}
+reset: {
     .label sc = 4
     .label msg = 2
     lda #$14
@@ -82,12 +122,12 @@ main: {
     jmp __b1
 }
 // Copies the character c (an unsigned char) to the first num characters of the object pointed to by the argument str.
-// memset(void* zeropage(8) str, byte register(X) c, word zeropage(6) num)
+// memset(void* zeropage(4) str, byte register(X) c, word zeropage(2) num)
 memset: {
-    .label end = 6
-    .label dst = 8
-    .label num = 6
-    .label str = 8
+    .label end = 2
+    .label dst = 4
+    .label num = 2
+    .label str = 4
     lda.z num
     bne !+
     lda.z num+1
@@ -118,109 +158,6 @@ memset: {
     inc.z dst+1
   !:
     jmp __b2
-}
-undefined_trap: {
-    jsr exit_hypervisor
-    rts
-}
-exit_hypervisor: {
-    lda #1
-    sta $d67f
-    rts
-}
-cpukil: {
-    jsr exit_hypervisor
-    rts
-}
-reserved: {
-    jsr exit_hypervisor
-    rts
-}
-vf011wr: {
-    jsr exit_hypervisor
-    rts
-}
-vf011rd: {
-    jsr exit_hypervisor
-    rts
-}
-alttabkey: {
-    jsr exit_hypervisor
-    rts
-}
-restorkey: {
-    jsr exit_hypervisor
-    rts
-}
-pagfault: {
-    jsr exit_hypervisor
-    rts
-}
-reset: {
-    .label sc = $c
-    .label msg = $a
-    lda #$14
-    sta VIC_MEMORY
-    ldx #' '
-    lda #<SCREEN
-    sta.z memset.str
-    lda #>SCREEN
-    sta.z memset.str+1
-    lda #<$28*$19
-    sta.z memset.num
-    lda #>$28*$19
-    sta.z memset.num+1
-    jsr memset
-    ldx #WHITE
-    lda #<COLS
-    sta.z memset.str
-    lda #>COLS
-    sta.z memset.str+1
-    lda #<$28*$19
-    sta.z memset.num
-    lda #>$28*$19
-    sta.z memset.num+1
-    jsr memset
-    lda #<SCREEN+$28
-    sta.z sc
-    lda #>SCREEN+$28
-    sta.z sc+1
-    lda #<MESSAGE
-    sta.z msg
-    lda #>MESSAGE
-    sta.z msg+1
-  __b1:
-    ldy #0
-    lda (msg),y
-    cmp #0
-    bne __b2
-  __b3:
-    lda #$36
-    cmp RASTER
-    beq __b4
-    lda #$42
-    cmp RASTER
-    beq __b4
-    lda #BLACK
-    sta BGCOL
-    jmp __b3
-  __b4:
-    lda #WHITE
-    sta BGCOL
-    jmp __b3
-  __b2:
-    ldy #0
-    lda (msg),y
-    sta (sc),y
-    inc.z sc
-    bne !+
-    inc.z sc+1
-  !:
-    inc.z msg
-    bne !+
-    inc.z msg+1
-  !:
-    jmp __b1
 }
 syscall64: {
     jsr exit_hypervisor
