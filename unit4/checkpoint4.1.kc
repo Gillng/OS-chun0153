@@ -247,7 +247,7 @@ export struct SysCall[] SYSCALLS = {
    {JMP, &syscall59, NOP},
    {JMP, &syscall60, NOP},
    {JMP, &syscall61, NOP},
-   {JMP, &syscall62, NOP},
+   {JMP, &syscall62, NOP}
    //{JMP, &syscall63, NOP},
    //{JMP, &syscall64, NOP}
    };
