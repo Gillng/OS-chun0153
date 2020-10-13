@@ -12,6 +12,8 @@ const char WHITE = 1;
 
 char[] MESSAGE = "checkpoint4.1 by chun0153";
 
+void main () {}
+
 void start_simple_program () {
 	*(unsigned char *)$0300 = $80;
 	*(unsigned char *)$0301 = $00;
