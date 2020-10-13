@@ -444,8 +444,6 @@ syscall3: {
     rts
 }
 syscall01: {
-    lda #'<'
-    sta SCREEN+$4e
     jsr print_newline
     lda #<message
     sta.z print_to_screen.message
@@ -493,8 +491,6 @@ print_newline: {
     rts
 }
 syscall00: {
-    lda #'>'
-    sta SCREEN+$4f
     jsr print_newline
     lda #<message
     sta.z print_to_screen.message
