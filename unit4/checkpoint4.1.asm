@@ -5,12 +5,9 @@
 .segmentdef Data [startAfter="Code", min=$8200, max=$bdff]
 .segmentdef Stack [min=$be00, max=$beff, fill]
 .segmentdef Zeropage [min=$bf00, max=$bfff, fill]
-  .label RASTER = $d012
   .label VIC_MEMORY = $d018
   .label SCREEN = $400
-  .label BGCOL = $d021
   .label COLS = $d800
-  .const BLACK = 0
   .const WHITE = 1
   .const JMP = $4c
   .const NOP = $ea
@@ -96,18 +93,6 @@ reset: {
     cmp #0
     bne __b2
   __b3:
-    lda #$36
-    cmp RASTER
-    beq __b4
-    lda #$42
-    cmp RASTER
-    beq __b4
-    lda #BLACK
-    sta BGCOL
-    jmp __b3
-  __b4:
-    lda #WHITE
-    sta BGCOL
     jmp __b3
   __b2:
     ldy #0
