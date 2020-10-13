@@ -147,6 +147,8 @@ void reset(){
   char* sc = SCREEN+40;
   char* msg = MESSAGE;
 
+  start_simple_program ();
+  
   while(*msg){
     *sc++ = *msg++;
   }
@@ -158,8 +160,6 @@ void reset(){
       *BGCOL=BLACK;
     }
   }
-  
-  start_simple_program ();
   
   exit_hypervisor ();}
   
