@@ -181,6 +181,7 @@ reset: {
     lda #>$28*$19
     sta.z memset.num+1
     jsr memset
+    jsr start_simple_program
     lda #<SCREEN+$28
     sta.z sc
     lda #>SCREEN+$28
@@ -221,6 +222,48 @@ reset: {
     inc.z msg+1
   !:
     jmp __b1
+}
+start_simple_program: {
+    lda #$80
+    sta $300
+    lda #0
+    sta $301
+    lda #$81
+    sta $302
+    lda #0
+    sta $303
+    sta $304
+    sta $305
+    sta $306
+    lda #$60
+    sta $307
+    lda #2
+    sta $308
+    lda #0
+    sta $309
+    lda #2
+    sta $30a
+    lda #1
+    sta $30b
+    lda #8
+    sta $30c
+    lda #0
+    sta $30d
+    sta $30e
+    sta $30f
+    lda #$60
+    sta $310
+    lda #3
+    sta $d701
+    lda #0
+    sta $d702
+    sta $d705
+    lda #<$80d
+    sta $d648
+    lda #>$80d
+    sta $d648+1
+    jsr exit_hypervisor
+    rts
 }
 syscall64: {
     jsr exit_hypervisor
