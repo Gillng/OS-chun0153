@@ -67,13 +67,16 @@ void exit_hypervisor () {
 	}
 
 void syscall1(){
-  *(SCREEN+79) = '>';
+  /* *(SCREEN+79) = '>';
   exit_hypervisor ();
+  */
 }
 
 void syscall2(){
+  /*
   *(SCREEN+78) = '<';
   exit_hypervisor ();
+  */
 }
 
 void syscall3(){exit_hypervisor ();}
