@@ -402,15 +402,9 @@ syscall3: {
     rts
 }
 syscall2: {
-    lda #'<'
-    sta SCREEN+$4e
-    jsr exit_hypervisor
     rts
 }
 syscall1: {
-    lda #'>'
-    sta SCREEN+$4f
-    jsr exit_hypervisor
     rts
 }
 .segment Data

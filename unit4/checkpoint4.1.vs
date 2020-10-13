@@ -31,7 +31,7 @@ al C:82a1 .memset
 al C:8385 .securentr
 al C:4 .str
 al C:83c1 .syscall2
-al C:83ca .syscall1
+al C:83c2 .syscall1
 al C:82d5 .syscall61
 al C:820f .reserved
 al C:82d1 .syscall62
@@ -60,7 +60,7 @@ al C:832d .syscall39
 al C:4 .dst
 al C:821f .restorkey
 al C:4 .sc
-al C:83d3 .MESSAGE
+al C:83c3 .MESSAGE
 al C:d018 .VIC_MEMORY
 al C:d012 .RASTER
 al C:8000 .SYSCALLS
