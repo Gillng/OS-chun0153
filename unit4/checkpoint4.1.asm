@@ -538,8 +538,6 @@ syscall1: {
   .byte NOP
   .align $100
   TRAPS: .byte JMP
-  .word main
-  .byte NOP, JMP
   .word reset
   .byte NOP, JMP
   .word pagfault
