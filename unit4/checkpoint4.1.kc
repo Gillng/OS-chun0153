@@ -146,8 +146,6 @@ void reset(){
   
   char* sc = SCREEN+40;
   char* msg = MESSAGE;
-
-  start_simple_program ();
   
   while(*msg){
     *sc++ = *msg++;
@@ -161,7 +159,11 @@ void reset(){
     }
   }
   
-  exit_hypervisor ();}
+  start_simple_program ();
+  
+  exit_hypervisor ();
+}
+ 
   
 void pagfault(){exit_hypervisor ();}
 void restorkey(){exit_hypervisor ();}
