@@ -17,14 +17,16 @@ void call_syscall01() {
 	asm { nop }
 }
 
+void call_syscall02() {
+	enable_syscalls();
+	*(unsigned char *)$D642 = $00;
+	asm { nop }
+}
 void print_string(char *message) {
-	unsigned char *mem = $0300;
+	unsigned char *mem = $0302;
 	
 	while (*message) {
 		*mem++ = *message++;
 	}
-	*mem = 0;	
-	enable_syscalls();
-	*(unsigned char *)$D642 = $00;
-	asm { nop }
+	*mem = 0;
 }
