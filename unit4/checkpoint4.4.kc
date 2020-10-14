@@ -99,7 +99,7 @@ void syscall01(){
 void syscall02(){
   // *(SCREEN+78) = '<';
   print_newline ();
-  print_to_screen ("syscall02 entered");
+  print_to_screen (message);
   exit_hypervisor ();
 }
 
