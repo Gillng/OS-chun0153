@@ -1024,7 +1024,7 @@
       Code,$841d,syscall5
       Code,$8421,syscall4
       Code,$8425,syscall02
-      Code,$0300,message
+      Code,$0302,message
       Code,$8437,syscall01
       Code,$8449,syscall00
       Syscall,$8000,SYSCALLS

@@ -1,0 +1,9 @@
+al C:810 .__b1__0
+al C:840 .__b1__1
+al C:4 .mem
+al C:830 .print_string
+al C:80b .upstartEnd
+al C:80d .main
+al C:813 .message__0
+al C:2 .message__1
+al C:84d .__b2

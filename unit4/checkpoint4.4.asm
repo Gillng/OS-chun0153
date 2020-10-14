@@ -456,7 +456,7 @@ syscall4: {
 }
 syscall02: {
     // *(SCREEN+78) = '<';
-    .label message = $300
+    .label message = $302
     jsr print_newline
     lda #<message
     sta.z print_to_screen.message
