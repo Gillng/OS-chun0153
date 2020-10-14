@@ -11,8 +11,8 @@
   .const WHITE = 1
   .const JMP = $4c
   .const NOP = $ea
-  .label current_screen_line = 8
-  .label current_screen_x = $a
+  .label current_screen_line = 2
+  .label current_screen_x = 6
   lda #<0
   sta.z current_screen_line
   sta.z current_screen_line+1
@@ -146,9 +146,9 @@ start_simple_program: {
     jsr exit_hypervisor
     rts
 }
-// print_to_screen(byte* zeropage(2) message)
+// print_to_screen(byte* zeropage(4) message)
 print_to_screen: {
-    .label message = 2
+    .label message = 4
   __b1:
     ldy #0
     lda (message),y
@@ -168,12 +168,12 @@ print_to_screen: {
     jmp __b1
 }
 // Copies the character c (an unsigned char) to the first num characters of the object pointed to by the argument str.
-// memset(void* zeropage(6) str, byte register(X) c, word zeropage(4) num)
+// memset(void* zeropage(9) str, byte register(X) c, word zeropage(7) num)
 memset: {
-    .label end = 4
-    .label dst = 6
-    .label num = 4
-    .label str = 6
+    .label end = 7
+    .label dst = 9
+    .label num = 7
+    .label str = 9
     lda.z num
     bne !+
     lda.z num+1
@@ -438,14 +438,7 @@ syscall5: {
     rts
 }
 syscall03: {
-    // *(SCREEN+78) = '<';
-    .label message = $303
     jsr print_newline
-    lda #<message
-    sta.z print_to_screen.message
-    lda #>message
-    sta.z print_to_screen.message+1
-    jsr print_to_screen
     jsr exit_hypervisor
     rts
 }
@@ -464,7 +457,6 @@ print_newline: {
 syscall02: {
     // *(SCREEN+78) = '<';
     .label message = $302
-    jsr print_newline
     lda #<message
     sta.z print_to_screen.message
     lda #>message
