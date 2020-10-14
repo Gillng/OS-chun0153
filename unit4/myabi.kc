@@ -1,5 +1,7 @@
 import "string"
 
+char[256] os_version_return;
+
 void enable_syscalls () {
 	*(unsigned char *)$D02F = $47;
 	*(unsigned char *)$D02F = $53;
@@ -23,6 +25,12 @@ void call_syscall02() {
 	asm { nop }
 }
 
+void call_syscall03() {
+	enable_syscalls();
+	*(unsigned char *)$D643 = $00;
+	asm { nop }
+}
+
 void print_string (char *message) {
 	unsigned char *mem = $0302;
 	
@@ -31,4 +39,9 @@ void print_string (char *message) {
 	}
 	*mem = 0;
 	call_syscall02();
+}
+
+char *get_os_version () {
+	os_version_return;
+	call_syscall03();
 }
