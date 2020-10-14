@@ -2,7 +2,7 @@ al C:83e5 .syscall19
 al C:8223 .pagfault
 al C:83f1 .syscall16
 al C:8100 .TRAPS
-al C:7 .num
+al C:6 .num
 al C:8200 .main
 al C:8213 .vf011wr
 al C:400 .SCREEN
@@ -14,7 +14,7 @@ al C:8355 .syscall55
 al C:8405 .syscall11
 al C:8361 .syscall52
 al C:835d .syscall53
-al C:5 .current_screen_line
+al C:4 .current_screen_line
 al C:8349 .syscall58
 al C:83f9 .syscall14
 al C:8345 .syscall59
@@ -23,7 +23,7 @@ al C:8351 .syscall56
 al C:8401 .syscall12
 al C:834d .syscall57
 al C:83fd .syscall13
-al C:4 .current_screen_x
+al C:a .current_screen_x
 al C:83bd .syscall29
 al C:83c5 .syscall27
 al C:83c1 .syscall28
@@ -31,7 +31,7 @@ al C:821b .alttabkey
 al C:82dd .print_to_screen
 al C:8309 .memset
 al C:83ed .securentr
-al C:9 .str
+al C:8 .str
 al C:833d .syscall61
 al C:820f .reserved
 al C:8339 .syscall62
@@ -56,14 +56,14 @@ al C:8425 .syscall3
 al C:8399 .syscall38
 al C:82dd .__b1
 al C:8395 .syscall39
-al C:9 .dst
+al C:8 .dst
 al C:821f .restorkey
 al C:d018 .VIC_MEMORY
 al C:8000 .SYSCALLS
 al C:832a .__breturn
 al C:83b1 .syscall32
 al C:83ad .syscall33
-al C:7 .end
+al C:6 .end
 al C:83b9 .syscall30
 al C:83b5 .syscall31
 al C:82e6 .__b2__0
