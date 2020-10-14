@@ -76,10 +76,10 @@ al C:82f9 .print_newline
 al C:836d .syscall49
 al C:d800 .COLS
 al C:2 .message__0
-al C:845b .message__1
-al C:8475 .message__2
-al C:8487 .message__3
-al C:8499 .message__4
+al C:300 .message__1
+al C:845b .message__2
+al C:8475 .message__3
+al C:8487 .message__4
 al C:8391 .syscall40
 al C:8201 .undefined_trap
 al C:820b .cpukil

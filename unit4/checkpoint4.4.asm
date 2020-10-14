@@ -455,6 +455,8 @@ syscall4: {
     rts
 }
 syscall02: {
+    // *(SCREEN+78) = '<';
+    .label message = $300
     jsr print_newline
     lda #<message
     sta.z print_to_screen.message
@@ -463,11 +465,7 @@ syscall02: {
     jsr print_to_screen
     jsr exit_hypervisor
     rts
-  .segment Data
-    message: .text "syscall02 entered"
-    .byte 0
 }
-.segment Code
 syscall01: {
     jsr print_newline
     lda #<message
