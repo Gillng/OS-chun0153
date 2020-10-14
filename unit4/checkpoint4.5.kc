@@ -106,9 +106,7 @@ void syscall02(){
 
 void syscall03(){
   // *(SCREEN+78) = '<';
-  unsigned char* message = $0303;
   print_newline ();
-  print_to_screen (message);
   exit_hypervisor ();
 }
 

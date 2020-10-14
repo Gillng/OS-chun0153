@@ -42,6 +42,6 @@ void print_string (char *message) {
 }
 
 char *get_os_version () {
-	os_version_return;
+	os_version_return = "froschos 1.00";
 	call_syscall03();
 }

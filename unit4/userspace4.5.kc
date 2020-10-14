@@ -1,7 +1,7 @@
 import "myabi"
 
 void main () {
-	get_os_version();
-	print_string ("os version is <operating system version>", get_os_version());
+	char os_version_return = (char *) get_os_version();
+	print_string ("os version is <operating system version>", os_version_return);
 	while (true) continue;
 }
