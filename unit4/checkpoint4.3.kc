@@ -175,6 +175,7 @@ void reset(){
     *sc++ = *msg++;
   }
   */
+  
   print_newline ();
   print_to_screen ("checkpoint4.3 by chun0153");  
   start_simple_program ();
