@@ -84,15 +84,17 @@ void exit_hypervisor () {
 
 void syscall00(){
   // *(SCREEN+79) = '>';
-  print_newline ();
+
   print_to_screen ("syscall00 entered");
+  print_newline ();
   exit_hypervisor ();
 }
 
 void syscall01(){
   // *(SCREEN+78) = '<';
-  print_newline ();
+
   print_to_screen ("syscall01 entered");
+  print_newline ();
   exit_hypervisor ();
 }
 
