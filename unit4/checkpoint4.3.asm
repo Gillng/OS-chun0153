@@ -11,8 +11,8 @@
   .const WHITE = 1
   .const JMP = $4c
   .const NOP = $ea
-  .label current_screen_line = 4
-  .label current_screen_x = $a
+  .label current_screen_line = 5
+  .label current_screen_x = 4
   lda #<0
   sta.z current_screen_line
   sta.z current_screen_line+1
@@ -181,12 +181,12 @@ print_newline: {
     rts
 }
 // Copies the character c (an unsigned char) to the first num characters of the object pointed to by the argument str.
-// memset(void* zeropage(8) str, byte register(X) c, word zeropage(6) num)
+// memset(void* zeropage(9) str, byte register(X) c, word zeropage(7) num)
 memset: {
-    .label end = 6
-    .label dst = 8
-    .label num = 6
-    .label str = 8
+    .label end = 7
+    .label dst = 9
+    .label num = 7
+    .label str = 9
     lda.z num
     bne !+
     lda.z num+1
@@ -459,12 +459,12 @@ syscall3: {
     rts
 }
 syscall01: {
-    jsr print_newline
     lda #<message
     sta.z print_to_screen.message
     lda #>message
     sta.z print_to_screen.message+1
     jsr print_to_screen
+    jsr print_newline
     jsr exit_hypervisor
     rts
   .segment Data
@@ -473,12 +473,12 @@ syscall01: {
 }
 .segment Code
 syscall00: {
-    jsr print_newline
     lda #<message
     sta.z print_to_screen.message
     lda #>message
     sta.z print_to_screen.message+1
     jsr print_to_screen
+    jsr print_newline
     jsr exit_hypervisor
     rts
   .segment Data
