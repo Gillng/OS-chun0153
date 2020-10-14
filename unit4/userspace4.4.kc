@@ -1,0 +1,3 @@
+void main () {
+	print_string ("printed via print string api");
+}
