@@ -620,11 +620,9 @@ void reset(){
   char* sc = SCREEN+40;
   char* message = MESSAGE;
   
-/*
   while(*message){
     *sc++ = *message++;
   }
-*/
   
     current_screen_line = SCREEN;
     print_newline();
