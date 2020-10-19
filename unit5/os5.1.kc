@@ -23,6 +23,12 @@ char[] MESSAGE = "checkpoint 5.1 by chun0153";
 const unsigned char STATE_NOTRUNNING = $00;
 const unsigned char STATE_RUNNING = $01;
 
+void exit_hypervisor () {
+	*(unsigned char *)$D67F = $01;
+	}
+	
+void main () {}
+	
 // Process Descriptor Block definition
 struct process_descriptor_block {
   // Unique identifier for the process
@@ -42,8 +48,8 @@ struct process_descriptor_block {
   // process is stored when not running.
   // XXX - You need to add something here
   // XXX - You need to add something here
-  unsigned long storage_start_address = $20000;
-  unsigned long storage_end_address = $5FFFF;
+  unsigned long storage_start_address;
+  unsigned long storage_end_address;
    
   // Stored registers and related machine state for this
   // process (for the $D640-$D67E machine state registers)
@@ -212,6 +218,8 @@ void reset(){
 	*VIC_MEMORY = 0x14;
   memset(SCREEN, ' ', 40*25);
   memset(COLS, WHITE, 40*25);
+  char* sc = SCREEN+40;
+  char* message = MESSAGE;
   
   current_screen_line = SCREEN;
   print_newline();
@@ -220,13 +228,16 @@ void reset(){
   
   describe_pdb(0);
   
-  /* while(*message){
+  while(*message){
     *sc++ = *message++;
-  } */
+  }
   
+  /*
   print_to_screen("chun0153 operating system starting...");
   print_newline();
-  print_to_screen("testing hardware");
+  print_to_screen("testing hardware"); 
+  */
+  
   exit_hypervisor ();
 
 }
@@ -238,6 +249,149 @@ void vf011rd(){exit_hypervisor ();}
 void vf011wr(){exit_hypervisor ();}
 void reserved(){exit_hypervisor ();}
 void cpukil(){exit_hypervisor ();}
+
+
+#pragma data_seg(Syscall) 
+
+struct SysCall{
+  char xjmp;
+  void()* syscall;
+  char xnop;
+};   
+
+const char JMP = 0x4c;
+const char NOP = 0xea;
+
+export struct SysCall[] SYSCALLS = {
+   
+	{JMP, &syscall00, NOP},
+   {JMP, &syscall01, NOP},
+   {JMP, &syscall02, NOP},
+   {JMP, &syscall03, NOP},
+   {JMP, &syscall04, NOP},
+   {JMP, &syscall05, NOP},
+   {JMP, &syscall06, NOP},
+   {JMP, &syscall07, NOP},
+   {JMP, &syscall08, NOP},
+   {JMP, &syscall09, NOP},
+   {JMP, &syscall0A, NOP},
+   {JMP, &syscall0B, NOP},
+   {JMP, &syscall0C, NOP},
+   {JMP, &syscall0D, NOP},
+   {JMP, &syscall0E, NOP},
+   {JMP, &syscall0F, NOP},
+   {JMP, &syscall10, NOP},
+   {JMP, &securentr, NOP},
+   {JMP, &securexit, NOP},
+   {JMP, &syscall13, NOP},
+   {JMP, &syscall14, NOP},
+   {JMP, &syscall15, NOP},
+   {JMP, &syscall16, NOP},
+   {JMP, &syscall17, NOP},
+   {JMP, &syscall18, NOP},
+   {JMP, &syscall19, NOP},
+   {JMP, &syscall1A, NOP},
+   {JMP, &syscall1B, NOP},
+   {JMP, &syscall1C, NOP},
+   {JMP, &syscall1D, NOP},
+   {JMP, &syscall1E, NOP},
+   {JMP, &syscall1F, NOP},
+   {JMP, &syscall20, NOP},
+   {JMP, &syscall21, NOP},
+   {JMP, &syscall22, NOP},
+   {JMP, &syscall23, NOP},
+   {JMP, &syscall24, NOP},
+   {JMP, &syscall25, NOP},
+   {JMP, &syscall26, NOP},
+   {JMP, &syscall27, NOP},
+   {JMP, &syscall28, NOP},
+   {JMP, &syscall29, NOP},
+   {JMP, &syscall2A, NOP},
+   {JMP, &syscall2B, NOP},
+   {JMP, &syscall2C, NOP},
+   {JMP, &syscall2D, NOP},
+   {JMP, &syscall2E, NOP},
+   {JMP, &syscall2F, NOP},
+   {JMP, &syscall30, NOP},
+   {JMP, &syscall31, NOP},
+   {JMP, &syscall32, NOP},
+   {JMP, &syscall33, NOP},
+   {JMP, &syscall34, NOP},
+   {JMP, &syscall35, NOP},
+   {JMP, &syscall36, NOP},
+   {JMP, &syscall37, NOP},
+   {JMP, &syscall38, NOP},
+   {JMP, &syscall39, NOP},
+   {JMP, &syscall3A, NOP},
+   {JMP, &syscall3B, NOP},
+   {JMP, &syscall3C, NOP},
+   {JMP, &syscall3D, NOP},
+   {JMP, &syscall3E, NOP},
+   {JMP, &syscall3F, NOP}
+   };
+   
+export align(0x100) struct SysCall[] TRAPS = {
+
+	//{JMP, &main, NOP},
+	{JMP, &reset, NOP},
+  {JMP, &pagfault, NOP},
+	{JMP, &restorkey, NOP},
+	{JMP, &alttabkey, NOP},
+	{JMP, &vf011rd, NOP},
+	{JMP, &vf011wr, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	{JMP, &reserved, NOP},
+	
+	{JMP, &cpukil, NOP}
+	//{JMP, &undefined_trap, NOP}
+};
 
 // XXX - Now add the following lines to your RESET() function just before the "// Loop forever with 2 bars"
 
