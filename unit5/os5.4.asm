@@ -95,6 +95,8 @@ pagfault: {
     rts
 }
 reset: {
+    .label sc = $4f
+    .label message = $4d
     lda #$14
     sta VIC_MEMORY
     ldx #' '
@@ -117,11 +119,19 @@ reset: {
     lda #>$28*$19
     sta.z memset.num+1
     jsr memset
-    /*
-  while(*message){
-    *sc++ = *message++;
-  }
-*/
+    lda #<SCREEN+$28
+    sta.z sc
+    lda #>SCREEN+$28
+    sta.z sc+1
+    lda #<MESSAGE
+    sta.z message
+    lda #>MESSAGE
+    sta.z message+1
+  __b1:
+    ldy #0
+    lda (message),y
+    cmp #0
+    bne __b2
     lda #<SCREEN
     sta.z current_screen_line
     lda #>SCREEN
@@ -145,6 +155,19 @@ reset: {
     jsr resume_pdb
     jsr exit_hypervisor
     rts
+  __b2:
+    ldy #0
+    lda (message),y
+    sta (sc),y
+    inc.z sc
+    bne !+
+    inc.z sc+1
+  !:
+    inc.z message
+    bne !+
+    inc.z message+1
+  !:
+    jmp __b1
   .segment Data
     name: .text "program2.prg"
     .byte 0
@@ -1973,6 +1996,9 @@ syscall00: {
     jsr exit_hypervisor
     rts
 }
+.segment Data
+  MESSAGE: .text "checkpoint 5.4 by chun0153"
+  .byte 0
 .segment Syscall
   SYSCALLS: .byte JMP
   .word syscall00
