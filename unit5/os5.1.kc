@@ -221,16 +221,22 @@ void reset(){
   char* sc = SCREEN+40;
   char* message = MESSAGE;
   
+  
   current_screen_line = SCREEN;
   print_newline();
+  print_to_screen("checkpoint 5.1 by chun0153");
   print_newline();
   print_newline();
   
   describe_pdb(0);
-  
+
+/*  
   while(*message){
     *sc++ = *message++;
   }
+ */
+ 
+
   
   /*
   print_to_screen("chun0153 operating system starting...");

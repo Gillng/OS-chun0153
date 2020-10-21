@@ -270,7 +270,7 @@ void resume_pdb(unsigned char pdb_number)
         -- ((unsigned char *)$D640)[62] (dma_copy doesn't work for this for some slightly
         complex reasons.)
 */
-	unsigned char i;
+	unsigned short i;
 	for (i=0; i<63; i++) {
 		((unsigned char *)$D640)[i] = ss[i];
   }
@@ -569,7 +569,7 @@ void reset(){
   char* message = MESSAGE;
   
     current_screen_line = SCREEN;
-    print_newline();
+    //print_newline();
     //print_newline();
     //print_newline();
 

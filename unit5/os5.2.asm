@@ -79,8 +79,6 @@ pagfault: {
     rts
 }
 reset: {
-    .label sc = $11
-    .label message = 7
     lda #$14
     sta VIC_MEMORY
     ldx #' '
@@ -108,39 +106,20 @@ reset: {
     lda #>SCREEN
     sta.z current_screen_line+1
     jsr print_newline
+    lda #<message
+    sta.z print_to_screen.c
+    lda #>message
+    sta.z print_to_screen.c+1
+    jsr print_to_screen
     jsr print_newline
     jsr print_newline
     jsr initialise_pdb
     jsr describe_pdb
-    lda #<SCREEN+$28
-    sta.z sc
-    lda #>SCREEN+$28
-    sta.z sc+1
-    lda #<MESSAGE
-    sta.z message
-    lda #>MESSAGE
-    sta.z message+1
-  __b1:
-    ldy #0
-    lda (message),y
-    cmp #0
-    bne __b2
     jsr exit_hypervisor
     rts
-  __b2:
-    ldy #0
-    lda (message),y
-    sta (sc),y
-    inc.z sc
-    bne !+
-    inc.z sc+1
-  !:
-    inc.z message
-    bne !+
-    inc.z message+1
-  !:
-    jmp __b1
   .segment Data
+    message: .text "checkpoint 5.2 by chun0153"
+    .byte 0
     name: .text "program1.prg"
     .byte 0
 }
@@ -290,8 +269,8 @@ print_newline: {
 }
 // print_hex(word zeropage(7) value)
 print_hex: {
-    .label __3 = $13
-    .label __6 = $11
+    .label __3 = $11
+    .label __6 = $13
     .label value = 7
     ldx #0
   __b1:
@@ -366,7 +345,7 @@ print_hex: {
 }
 .segment Code
 print_to_screen: {
-    .label c = $11
+    .label c = 7
   __b1:
     ldy #0
     lda (c),y
@@ -410,8 +389,8 @@ print_dhex: {
 // Setup a new process descriptor block
 initialise_pdb: {
     .label p = stored_pdbs
-    .label pn = $13
-    .label ss = $11
+    .label pn = $11
+    .label ss = $13
     jsr next_free_pid
     lda.z next_free_pid.pid
     // Setup process ID
@@ -880,6 +859,7 @@ syscall01: {
       before the "//Loop forever with 2 bars" line
     current_screen_line = SCREEN;
     print_newline();
+    print_to_screen("checkpoint 5.1 by chun0153");
     print_newline();
     print_newline();
 
@@ -894,9 +874,6 @@ syscall00: {
     jsr exit_hypervisor
     rts
 }
-.segment Data
-  MESSAGE: .text "checkpoint 5.2 by chun0153"
-  .byte 0
 .segment Syscall
   SYSCALLS: .byte JMP
   .word syscall00

@@ -35,9 +35,9 @@
   .label process_context_states = $c900
   .const JMP = $4c
   .const NOP = $ea
-  .label running_pdb = $2a
-  .label pid_counter = $2b
-  .label lpeek_value = $2c
+  .label running_pdb = $2c
+  .label pid_counter = $2d
+  .label lpeek_value = $2e
   .label current_screen_line = 3
   .label current_screen_x = 2
   // Which is the current running process?
@@ -95,8 +95,8 @@ pagfault: {
     rts
 }
 reset: {
-    .label sc = $3f
-    .label message = $54
+    .label sc = $39
+    .label message = $14
     lda #$14
     sta VIC_MEMORY
     ldx #' '
@@ -123,7 +123,6 @@ reset: {
     sta.z current_screen_line
     lda #>SCREEN
     sta.z current_screen_line+1
-    jsr print_newline
     jsr initialise_pdb
     jsr load_program
     jsr resume_pdb
@@ -164,10 +163,10 @@ reset: {
 .segment Code
 // describe_pdb(byte register(X) pdb_number)
 describe_pdb: {
-    .label __1 = $2d
-    .label __2 = $2d
-    .label p = $2d
-    .label n = $2f
+    .label __1 = $2f
+    .label __2 = $2f
+    .label p = $2f
+    .label n = $31
     .label ss = 5
     txa
     sta.z __1
@@ -471,8 +470,8 @@ print_newline: {
 }
 // print_hex(word zeropage(5) value)
 print_hex: {
-    .label __3 = $2f
-    .label __6 = $31
+    .label __3 = $31
+    .label __6 = $33
     .label value = 5
     ldx #0
   __b1:
@@ -548,7 +547,7 @@ print_hex: {
 .segment Code
 // print_dhex(dword zeropage(7) value)
 print_dhex: {
-    .label __0 = $33
+    .label __0 = $35
     .label value = 7
     lda #0
     sta.z __0+2
@@ -571,8 +570,11 @@ print_dhex: {
 resume_pdb: {
     .const pdb_number = 0
     .label p = stored_pdbs
-    .label __7 = $4d
-    .label ss = $54
+    .label __7 = $4f
+    .label ss = $39
+    .label i = $14
+    .label __17 = $54
+    .label __18 = $56
     lda p+OFFSET_STRUCT_PROCESS_DESCRIPTOR_BLOCK_STORAGE_START_ADDRESS
     sta.z dma_copy.src
     lda p+OFFSET_STRUCT_PROCESS_DESCRIPTOR_BLOCK_STORAGE_START_ADDRESS+1
@@ -630,10 +632,18 @@ resume_pdb: {
     sta.z ss
     lda p+OFFSET_STRUCT_PROCESS_DESCRIPTOR_BLOCK_STORED_STATE+1
     sta.z ss+1
-    ldy #0
+    lda #<0
+    sta.z i
+    sta.z i+1
   __b1:
-    cpy #$3f
+    lda.z i+1
+    cmp #>$3f
     bcc __b2
+    bne !+
+    lda.z i
+    cmp #<$3f
+    bcc __b2
+  !:
     // Set state of process to running
     // XXX - Set p->process_state to STATE_RUNNING
     lda #STATE_RUNNING
@@ -645,35 +655,53 @@ resume_pdb: {
     jsr exit_hypervisor
     rts
   __b2:
-    lda (ss),y
-    sta $d640,y
-    iny
+    lda.z ss
+    clc
+    adc.z i
+    sta.z __17
+    lda.z ss+1
+    adc.z i+1
+    sta.z __17+1
+    lda #<$d640
+    clc
+    adc.z i
+    sta.z __18
+    lda #>$d640
+    adc.z i+1
+    sta.z __18+1
+    ldy #0
+    lda (__17),y
+    sta (__18),y
+    inc.z i
+    bne !+
+    inc.z i+1
+  !:
     jmp __b1
 }
-// dma_copy(dword zeropage($4d) src, dword zeropage($b) dest, word zeropage($54) length)
+// dma_copy(dword zeropage($4f) src, dword zeropage($b) dest, word zeropage($39) length)
 dma_copy: {
-    .label __0 = $37
-    .label __2 = $3b
-    .label __4 = $3f
-    .label __5 = $41
-    .label __7 = $45
-    .label __9 = $52
-    .label src = $4d
-    .label list_request_format0a = $14
-    .label list_source_mb_option80 = $15
-    .label list_source_mb = $16
-    .label list_dest_mb_option81 = $17
-    .label list_dest_mb = $18
-    .label list_end_of_options00 = $19
-    .label list_cmd = $1a
-    .label list_size = $1b
-    .label list_source_addr = $1d
-    .label list_source_bank = $1f
-    .label list_dest_addr = $20
-    .label list_dest_bank = $22
-    .label list_modulo00 = $23
+    .label __0 = $3b
+    .label __2 = $3f
+    .label __4 = $54
+    .label __5 = $43
+    .label __7 = $47
+    .label __9 = $56
+    .label src = $4f
+    .label list_request_format0a = $16
+    .label list_source_mb_option80 = $17
+    .label list_source_mb = $18
+    .label list_dest_mb_option81 = $19
+    .label list_dest_mb = $1a
+    .label list_end_of_options00 = $1b
+    .label list_cmd = $1c
+    .label list_size = $1d
+    .label list_source_addr = $1f
+    .label list_source_bank = $21
+    .label list_dest_addr = $22
+    .label list_dest_bank = $24
+    .label list_modulo00 = $25
     .label dest = $b
-    .label length = $54
+    .label length = $39
     lda #0
     sta.z list_request_format0a
     sta.z list_source_mb_option80
@@ -808,15 +836,15 @@ dma_copy: {
 }
 load_program: {
     .label pdb = stored_pdbs
-    .label __30 = $4d
-    .label __31 = $4d
+    .label __30 = $4f
+    .label __31 = $4f
     .label __34 = $f
     .label __35 = $f
-    .label n = $52
-    .label c2 = $51
-    .label new_address = $49
+    .label n = $54
+    .label c2 = $53
+    .label new_address = $4b
     .label address = $f
-    .label length = $28
+    .label length = $2a
     .label dest = $b
     .label match = $13
     lda #0
@@ -1078,10 +1106,10 @@ load_program: {
     iny
     jmp __b2
 }
-// lpeek(dword zeropage($4d) address)
+// lpeek(dword zeropage($4f) address)
 lpeek: {
-    .label t = $24
-    .label address = $4d
+    .label t = $26
+    .label address = $4f
     // Work around all sorts of fun problems in KickC
     //  dma_copy(address,$BF00+((unsigned short)<&lpeek_value),1);  
     lda #<lpeek_value
@@ -1144,7 +1172,7 @@ lpeek: {
 initialise_pdb: {
     .label p = stored_pdbs
     .label pn = $54
-    .label ss = $52
+    .label ss = $56
     jsr next_free_pid
     lda.z next_free_pid.pid
     // Setup process ID
@@ -1263,10 +1291,10 @@ initialise_pdb: {
     jmp __b1
 }
 next_free_pid: {
-    .label __2 = $54
+    .label __2 = $56
     .label pid = $13
-    .label p = $54
-    .label i = $3f
+    .label p = $56
+    .label i = $14
     inc.z pid_counter
     // Start with the next process ID
     lda.z pid_counter
@@ -1317,12 +1345,12 @@ next_free_pid: {
     jmp __b2
 }
 // Copies the character c (an unsigned char) to the first num characters of the object pointed to by the argument str.
-// memset(void* zeropage($3f) str, byte register(X) c, word zeropage($54) num)
+// memset(void* zeropage($39) str, byte register(X) c, word zeropage($14) num)
 memset: {
-    .label end = $54
-    .label dst = $3f
-    .label num = $54
-    .label str = $3f
+    .label end = $14
+    .label dst = $39
+    .label num = $14
+    .label str = $39
     lda.z num
     bne !+
     lda.z num+1

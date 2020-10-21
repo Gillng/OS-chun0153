@@ -13,12 +13,9 @@
   .const OFFSET_STRUCT_PROCESS_DESCRIPTOR_BLOCK_STORAGE_START_ADDRESS = 4
   .const OFFSET_STRUCT_PROCESS_DESCRIPTOR_BLOCK_STORAGE_END_ADDRESS = 8
   .const OFFSET_STRUCT_PROCESS_DESCRIPTOR_BLOCK_STORED_STATE = $c
-  .label RASTER = $d012
   .label VIC_MEMORY = $d018
   .label SCREEN = $400
-  .label BGCOL = $d021
   .label COLS = $d800
-  .const BLACK = 0
   .const WHITE = 1
   // Process stored state will live at $C000-$C7FF, with 256 bytes
   // for each process reserved
@@ -73,8 +70,6 @@ pagfault: {
     rts
 }
 reset: {
-    .label sc = $d
-    .label message = 2
     lda #$14
     sta VIC_MEMORY
     ldx #' '
@@ -102,50 +97,21 @@ reset: {
     lda #>SCREEN
     sta.z current_screen_line+1
     jsr print_newline
+    lda #<message
+    sta.z print_to_screen.c
+    lda #>message
+    sta.z print_to_screen.c+1
+    jsr print_to_screen
     jsr print_newline
     jsr print_newline
     jsr describe_pdb
-    lda #<SCREEN+$28
-    sta.z sc
-    lda #>SCREEN+$28
-    sta.z sc+1
-    lda #<MESSAGE
-    sta.z message
-    lda #>MESSAGE
-    sta.z message+1
-  __b1:
-    ldy #0
-    lda (message),y
-    cmp #0
-    bne __b2
-  __b3:
-    lda #$36
-    cmp RASTER
-    beq __b4
-    lda #$42
-    cmp RASTER
-    beq __b4
-    lda #BLACK
-    sta BGCOL
-    jmp __b3
-  __b4:
-    lda #WHITE
-    sta BGCOL
-    jmp __b3
-  __b2:
-    ldy #0
-    lda (message),y
-    sta (sc),y
-    inc.z sc
-    bne !+
-    inc.z sc+1
-  !:
-    inc.z message
-    bne !+
-    inc.z message+1
-  !:
-    jmp __b1
+    jsr exit_hypervisor
+    rts
+  .segment Data
+    message: .text "checkpoint 5.1 by chun0153"
+    .byte 0
 }
+.segment Code
 describe_pdb: {
     .label p = stored_pdbs
     .label n = $d
@@ -367,7 +333,7 @@ print_hex: {
 }
 .segment Code
 print_to_screen: {
-    .label c = $d
+    .label c = 2
   __b1:
     ldy #0
     lda (c),y
@@ -703,9 +669,6 @@ syscall00: {
     jsr exit_hypervisor
     rts
 }
-.segment Data
-  MESSAGE: .text "checkpoint 5.1 by chun0153"
-  .byte 0
 .segment Syscall
   SYSCALLS: .byte JMP
   .word syscall00
