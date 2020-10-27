@@ -1,0 +1,12 @@
+al C:82d .enable_syscalls
+al C:300 .a
+al C:2 .b
+al C:810 .__b1__0
+al C:854 .__b1__1
+al C:823 .yield
+al C:80b .upstartEnd
+al C:80d .main
+al C:816 .message
+al C:85f .__b2
+al C:838 .ipc_send
+al C:871 .__b4

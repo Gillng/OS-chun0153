@@ -18,7 +18,7 @@ const char BLACK = 0;
 const char BLUE = 6;
 const char WHITE = 1;
 
-char[] MESSAGE = "checkpoint 5.3 by chun0153";
+char[] MESSAGE = "checkpoint 6.1 by chun0153";
 
 const unsigned char STATE_NOTRUNNING = $00;
 const unsigned char STATE_NEW = $01;
@@ -516,15 +516,15 @@ void exit_hypervisor()
 	*(char *)$D67F = $01;
 }
 
-/*
-XXX -  Copy your syscall handler functions from os5.2.kc
-XXX - Don't forget to add describe_pdb(running_pdb); to your handler for SYSCALL $03
+// Message structure: 16 bytes in total
 
-XXX - Copy your RESET() routine from os5.2.kc
-XXX - Don't forget to call resume_pdb(0) immediately after load_program(0)
-
-XXX - Copy your trap handler functions and entry point tables from os5.2.kc
-*/
+struct ipc_message {
+	unsigned char from;
+	unsigned char to;
+	unsigned char priority;
+	unsigned char sequence;
+	unsigned char[12] message;
+};
 
 void syscall00(){exit_hypervisor ();}
 void syscall01(){exit_hypervisor ();}
@@ -573,8 +573,55 @@ void syscall06(){
 	
 void syscall07(){exit_hypervisor ();}
 void syscall08(){exit_hypervisor ();}
-void syscall09(){exit_hypervisor ();}
-void syscall0A(){exit_hypervisor ();}
+
+void syscall09()
+{
+	struct process_descriptor_block *pdb
+		 = (struct process_descriptor_block*)
+		 ((unsigned short)stored_pdbs+(((unsigned short)running_pdb)<<8));
+		 unsigned char caller_pid = pdb->process_id;
+		 
+		 unsigned char message_id=get_next_message_id(caller_pid);
+		 
+		 if (message_id!=0xff) {
+		 	// We have a message to return
+		 	struct ipc_message*m=get_pointer_to_message (message_id);
+		 	// Copy it to the transfer area
+		 	dma_copy((unsigned short)m,$0300,16);
+		 	// De-queue the message
+		 	dequeue_message(message_id);
+		 	// Return from operating system back into the calling program
+		 	exit_hypervisor();
+		 }
+		 
+		 else {
+		 	// We have no message to return
+		 	// So set message to all $FFs
+		 	for (unsigned char i=0; i<16; i++)
+		 		*(unsigned char *)($0300+i)=0xff;
+		 	exit_hypervisor();
+		 }
+
+	//exit_hypervisor ();
+}
+
+void syscall0A()
+{
+	struct process_descriptor_block *pdb
+		 = (struct process_descriptor_block*)
+		 ((unsigned short)stored_pdbs+(((unsigned short)running_pdb)<<8));
+		 unsigned char caller_pid = pdb->process_id;
+		 
+			unsigned char to = *(unsigned char*)$0300;
+			unsigned char priority = *(unsigned char*)$0301;
+			unsigned char sequence_number = *(unsigned char*)$0302;
+			unsigned char *message = (unsigned char*)$0303;
+		 
+		 	queue_message(caller_pid, to, priority, sequence_number, message);
+		 
+	exit_hypervisor ();
+}
+
 void syscall0B(){exit_hypervisor ();}
 void syscall0C(){exit_hypervisor ();}
 void syscall0D(){exit_hypervisor ();}
@@ -638,33 +685,34 @@ void reset(){
   
     current_screen_line = SCREEN;
     print_newline();
-    print_to_screen("checkpoint 5.4 by chun0153");
+    // print_to_screen("checkpoint 6.1 by chun0153");
     print_newline();
     //print_newline();
-
-    // Load program 2 into PDB #0
-		initialise_pdb(0,"program2.prg");
+    
+    // Start with empty message queue
+    ipc_message_count = 0;
+    
+    // Create message fron PID 0 (OS) to PID 1
+    // queue_message(0,1,1,1,"cpoint 6.2  ");
+    
+    // Initialise PDB slot 0 to hold program1
+		initialise_pdb(0,"program6.prg");
+		
+		
+    // Load program 
     load_program(0);
 
-    // Load program 2 into PDB #1
-		initialise_pdb(1,"program2.prg");
-    load_program(1);
+		// Run the program
+    // resume_pdb(0);
     
-    resume_pdb(0);
-    describe_pdb(0);
+    initialise_pdb(1,"program5.prg");
+    load_program(1);
     resume_pdb(1);
-    describe_pdb(1);
       
   while(*message){
     *sc++ = *message++;
   }
-  
-  /*
-  print_to_screen("chun0153 operating system starting...");
-  print_newline();
-  print_to_screen("testing hardware"); 
-  */
-  
+
   exit_hypervisor ();
 
 }
@@ -676,6 +724,62 @@ void vf011rd(){exit_hypervisor ();}
 void vf011wr(){exit_hypervisor ();}
 void reserved(){exit_hypervisor ();}
 void cpukil(){exit_hypervisor ();}
+
+// We will have 16 slots of 16 bytes at $CB00-$CBFF
+const unsigned char *ipc_messages = $CB00;
+volatile unsigned char ipc_message_count;
+
+void queue_message (unsigned char from, unsigned char to, unsigned char priority, 
+unsigned char sequence, unsigned char *message)
+{
+	if (ipc_message_count > 15) return;
+	
+	struct ipc_message *m = (struct ipc_message *)
+		(ipc_messages + ipc_message_count * 16);
+		
+	m->from=from; m->to=to; m->priority=priority; m->sequence=sequence;
+	for(unsigned char i=0; i<12; i++) m->message[i]=message[i];
+	
+	ipc_message_count++;
+}
+
+void dequeue_message (unsigned char message_num)
+{
+	if (message_num > ipc_message_count) return;
+	if (message_num == (ipc_message_count - 1)) {
+		ipc_message_count--;
+		return;
+	}
+	unsigned char *dest = (unsigned char *)
+		((unsigned short)ipc_messages + message_num *16);
+	unsigned char *src = (unsigned char *)
+		((unsigned short)ipc_messages + (ipc_message_count - 1)*16);
+	for (unsigned char i = 0; i<16; i++) dest[i]=src[i];
+	ipc_message_count--;
+}
+
+unsigned char get_next_message_id(unsigned char receiver)
+{
+	unsigned char best_message = 0xff;
+	unsigned char priority = 0;
+	
+	for (unsigned char i=0; i<ipc_message_count; i++) {
+		struct ipc_message *m = (struct ipc_message *)
+			(ipc_messages + i * 16);
+		if (m->to == receiver) {
+			if (m->priority > priority) {
+				best_message = i;
+				priority = m->priority;
+			}
+		}
+	}
+	return best_message;
+}
+
+struct ipc_message *get_pointer_to_message(unsigned char id)
+{
+	return (struct ipc_message *)(ipc_messages + id * 16);
+}
 
 
 #pragma data_seg(Syscall) 
