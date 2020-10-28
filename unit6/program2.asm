@@ -27,14 +27,14 @@ ipc_send: {
     .label a = $300
     .const to = 1
     .const priority = 1
-    .const sequence_number = 1
+    .const sequence = 1
     .label b = 2
     jsr enable_syscalls
     lda #to
     sta a
     lda #priority
     sta a+1
-    lda #sequence_number
+    lda #sequence
     sta a+2
     lda #<main.message
     sta.z b
@@ -44,7 +44,13 @@ ipc_send: {
   __b1:
     cpx #$f
     bcc __b2
-    lda #$a
+    /*	
+	while (*b) {
+		*a++ = *b++;
+		}
+		
+*/
+    lda #0
     sta $d64a
     nop
     rts

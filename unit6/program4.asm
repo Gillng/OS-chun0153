@@ -88,7 +88,13 @@ ipc_send: {
   __b1:
     cpx #$f
     bcc __b2
-    lda #$a
+    /*	
+	while (*b) {
+		*a++ = *b++;
+		}
+		
+*/
+    lda #0
     sta $d64a
     nop
     rts

@@ -607,6 +607,7 @@ void syscall09()
 
 void syscall0A()
 {
+	struct ipc_message *m = $0300;
 	struct process_descriptor_block *pdb
 		 = (struct process_descriptor_block*)
 		 ((unsigned short)stored_pdbs+(((unsigned short)running_pdb)<<8));
@@ -614,10 +615,11 @@ void syscall0A()
 		 
 			unsigned char to = *(unsigned char*)$0300;
 			unsigned char priority = *(unsigned char*)$0301;
-			unsigned char sequence_number = *(unsigned char*)$0302;
+			unsigned char sequence = *(unsigned char*)$0302;
 			unsigned char *message = (unsigned char*)$0303;
+			
 		 
-		 	queue_message(caller_pid, to, priority, sequence_number, message);
+		 	queue_message(caller_pid, to, priority, sequence, message);
 		 
 	exit_hypervisor ();
 }
@@ -684,9 +686,9 @@ void reset(){
   char* message = MESSAGE;
   
     current_screen_line = SCREEN;
-    print_newline();
+    //print_newline();
     // print_to_screen("checkpoint 6.1 by chun0153");
-    print_newline();
+    //print_newline();
     //print_newline();
     
     // Start with empty message queue
@@ -707,7 +709,7 @@ void reset(){
     
     initialise_pdb(1,"program4.prg");
     load_program(1);
-    resume_pdb(1);
+    resume_pdb(0);
       
   while(*message){
     *sc++ = *message++;
@@ -737,7 +739,7 @@ unsigned char sequence, unsigned char *message)
 	struct ipc_message *m = (struct ipc_message *)
 		(ipc_messages + ipc_message_count * 16);
 		
-	m->from=from; m->to=to; m->priority=priority; m->sequence=sequence;
+	m->from; m->to=to; m->priority=priority; m->sequence=sequence;
 	for(unsigned char i=0; i<12; i++) m->message[i]=message[i];
 	
 	ipc_message_count++;
@@ -746,7 +748,10 @@ unsigned char sequence, unsigned char *message)
 void dequeue_message (unsigned char message_num)
 {
 	if (message_num > ipc_message_count) return;
+	
 	if (message_num == (ipc_message_count - 1)) {
+		byte *last = (byte *)ipc_messages;
+		for (unsigned char i = 0; i<16; i++) last[i] = $ff;
 		ipc_message_count--;
 		return;
 	}
@@ -754,7 +759,10 @@ void dequeue_message (unsigned char message_num)
 		((unsigned short)ipc_messages + message_num *16);
 	unsigned char *src = (unsigned char *)
 		((unsigned short)ipc_messages + (ipc_message_count - 1)*16);
-	for (unsigned char i = 0; i<16; i++) dest[i]=src[i];
+	for (unsigned char i = 0; i<16; i++) {
+		dest[i]=src[i];
+		src[i] = 0xff;
+		}
 	ipc_message_count--;
 }
 

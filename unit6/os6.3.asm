@@ -44,9 +44,9 @@
   .label running_pdb = $33
   .label pid_counter = $10
   .label lpeek_value = $34
-  .label current_screen_line = $12
+  .label current_screen_line = $13
   .label current_screen_x = $18
-  .label ipc_message_count = $14
+  .label ipc_message_count = $12
   // Which is the current running process?
   lda #$ff
   sta.z running_pdb
@@ -131,8 +131,6 @@ reset: {
     sta.z current_screen_line
     lda #>SCREEN
     sta.z current_screen_line+1
-    jsr print_newline
-    jsr print_newline
     // Start with empty message queue
     lda #0
     sta.z ipc_message_count
@@ -154,7 +152,7 @@ reset: {
     jsr initialise_pdb
     lda #1
     jsr load_program
-    lda #1
+    lda #0
     sta.z resume_pdb.pdb_number
     jsr resume_pdb
     lda #<SCREEN+$28
@@ -1179,18 +1177,6 @@ next_free_pid: {
   !:
     jmp __b2
 }
-print_newline: {
-    lda #$28
-    clc
-    adc.z current_screen_line
-    sta.z current_screen_line
-    bcc !+
-    inc.z current_screen_line+1
-  !:
-    lda #0
-    sta.z current_screen_x
-    rts
-}
 // Copies the character c (an unsigned char) to the first num characters of the object pointed to by the argument str.
 // memset(void* zeropage($69) str, byte register(X) c, word zeropage($55) num)
 memset: {
@@ -1443,44 +1429,19 @@ syscall0B: {
 }
 syscall0A: {
     .label message = $303
-    .label __1 = $6f
-    .label __2 = $6f
-    .label pdb = $6f
-    .label priority = $6d
-    .label sequence_number = $6e
-    lda.z running_pdb
-    sta.z __1
-    lda #0
-    sta.z __1+1
-    lda.z __2
-    sta.z __2+1
-    lda #0
-    sta.z __2
-    clc
-    lda.z pdb
-    adc #<stored_pdbs
-    sta.z pdb
-    lda.z pdb+1
-    adc #>stored_pdbs
-    sta.z pdb+1
-    ldy #0
-    lda (pdb),y
-    tay
-    ldx $300
-    lda $301
-    sta.z priority
+    ldy $300
+    ldx $301
     lda $302
-    sta.z sequence_number
+    sta.z queue_message.sequence
     jsr queue_message
     jsr exit_hypervisor
     rts
 }
-// queue_message(byte register(Y) from, byte register(X) to, byte zeropage($6d) priority, byte zeropage($6e) sequence)
+// queue_message(byte register(Y) to, byte register(X) priority, byte zeropage($6d) sequence)
 queue_message: {
-    .label __10 = $71
-    .label priority = $6d
-    .label sequence = $6e
-    .label m = $6f
+    .label __11 = $70
+    .label sequence = $6d
+    .label m = $6e
     lda.z ipc_message_count
     cmp #$f+1
     bcc __b1
@@ -1498,13 +1459,10 @@ queue_message: {
     adc #0
     sta.z m+1
     tya
-    ldy #0
-    sta (m),y
     ldy #OFFSET_STRUCT_IPC_MESSAGE_TO
-    txa
     sta (m),y
-    lda.z priority
     ldy #OFFSET_STRUCT_IPC_MESSAGE_PRIORITY
+    txa
     sta (m),y
     lda.z sequence
     ldy #OFFSET_STRUCT_IPC_MESSAGE_SEQUENCE
@@ -1519,21 +1477,21 @@ queue_message: {
     lda #OFFSET_STRUCT_IPC_MESSAGE_MESSAGE
     clc
     adc.z m
-    sta.z __10
+    sta.z __11
     lda #0
     adc.z m+1
-    sta.z __10+1
+    sta.z __11+1
     lda syscall0A.message,y
-    sta (__10),y
+    sta (__11),y
     iny
     jmp __b2
 }
 syscall09: {
-    .label __1 = $75
-    .label __2 = $75
-    .label __9 = $77
-    .label pdb = $75
-    .label m = $79
+    .label __1 = $74
+    .label __2 = $74
+    .label __9 = $76
+    .label pdb = $74
+    .label m = $78
     lda.z running_pdb
     sta.z __1
     lda #0
@@ -1606,11 +1564,11 @@ syscall09: {
     jsr exit_hypervisor
     rts
 }
-// dequeue_message(byte zeropage($74) message_num)
+// dequeue_message(byte zeropage($73) message_num)
 dequeue_message: {
-    .label message_num = $74
-    .label dest = $75
-    .label src = $77
+    .label message_num = $73
+    .label dest = $74
+    .label src = $76
     lda.z ipc_message_count
     cmp.z message_num
     bcs __b1
@@ -1620,8 +1578,17 @@ dequeue_message: {
     dex
     cpx.z message_num
     bne __b2
+    ldx #0
+  __b3:
+    cpx #$10
+    bcc __b4
     dec.z ipc_message_count
     rts
+  __b4:
+    lda #$ff
+    sta ipc_messages,x
+    inx
+    jmp __b3
   __b2:
     lda.z message_num
     asl
@@ -1648,23 +1615,27 @@ dequeue_message: {
     adc #0
     sta.z src+1
     ldx #0
-  __b4:
+  __b6:
     cpx #$10
-    bcc __b5
+    bcc __b7
     dec.z ipc_message_count
     rts
-  __b5:
+  __b7:
     stx.z $ff
     txa
     tay
     lda (src),y
     sta (dest),y
+    txa
+    tay
+    lda #$ff
+    sta (src),y
     inx
-    jmp __b4
+    jmp __b6
 }
 // get_pointer_to_message(byte register(A) id)
 get_pointer_to_message: {
-    .label return = $79
+    .label return = $78
     asl
     asl
     asl
@@ -1677,11 +1648,11 @@ get_pointer_to_message: {
     sta.z return+1
     rts
 }
-// get_next_message_id(byte zeropage($73) receiver)
+// get_next_message_id(byte zeropage($72) receiver)
 get_next_message_id: {
-    .label receiver = $73
-    .label m = $79
-    .label best_message = $74
+    .label receiver = $72
+    .label m = $78
+    .label best_message = $73
     lda #$ff
     sta.z best_message
     ldx #0
@@ -1722,9 +1693,9 @@ syscall07: {
     rts
 }
 syscall06: {
-    .label __1 = $7b
-    .label __2 = $7b
-    .label pdb = $7b
+    .label __1 = $7a
+    .label __2 = $7a
+    .label pdb = $7a
     lda.z running_pdb
     sta.z __1
     lda #0
@@ -1771,10 +1742,22 @@ syscall06: {
     .byte 0
 }
 .segment Code
+print_newline: {
+    lda #$28
+    clc
+    adc.z current_screen_line
+    sta.z current_screen_line
+    bcc !+
+    inc.z current_screen_line+1
+  !:
+    lda #0
+    sta.z current_screen_x
+    rts
+}
 // print_hex(word zeropage($15) value)
 print_hex: {
-    .label __3 = $7d
-    .label __6 = $7f
+    .label __3 = $7c
+    .label __6 = $7e
     .label value = $15
     ldx #0
   __b1:
@@ -1869,10 +1852,10 @@ print_to_screen: {
     jmp __b1
 }
 syscall05: {
-    .label __7 = $81
-    .label __8 = $81
+    .label __7 = $80
+    .label __8 = $80
     .label next_pdb = $17
-    .label pdb = $81
+    .label pdb = $80
     lda.z running_pdb
     sta.z next_pdb
     lda.z running_pdb
@@ -1918,14 +1901,14 @@ syscall05: {
 }
 // pause_pdb(byte register(A) pdb_number)
 pause_pdb: {
-    .label __1 = $83
-    .label __2 = $83
-    .label __7 = $85
-    .label p = $83
-    .label ss = $89
-    .label i = $81
-    .label __16 = $8b
-    .label __17 = $8d
+    .label __1 = $82
+    .label __2 = $82
+    .label __7 = $84
+    .label p = $82
+    .label ss = $88
+    .label i = $80
+    .label __16 = $8a
+    .label __17 = $8c
     sta.z __1
     lda #0
     sta.z __1+1
@@ -2065,11 +2048,11 @@ syscall03: {
 }
 // describe_pdb(byte register(X) pdb_number)
 describe_pdb: {
-    .label __1 = $8f
-    .label __2 = $8f
-    .label p = $8f
-    .label n = $91
-    .label ss = $8f
+    .label __1 = $8e
+    .label __2 = $8e
+    .label p = $8e
+    .label n = $90
+    .label ss = $8e
     txa
     sta.z __1
     lda #0
@@ -2340,7 +2323,7 @@ print_char: {
 }
 // print_dhex(dword zeropage($19) value)
 print_dhex: {
-    .label __0 = $93
+    .label __0 = $92
     .label value = $19
     lda #0
     sta.z __0+2

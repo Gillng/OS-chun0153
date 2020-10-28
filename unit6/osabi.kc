@@ -75,22 +75,30 @@ struct ipc_message *ipc_read() {
 }
 
 void ipc_send(unsigned char to, unsigned char priority, 
-unsigned char sequence_number, unsigned char *message)
+unsigned char sequence, unsigned char *message)
 {
 	enable_syscalls();
 
 	unsigned char *a=(unsigned char *)$0300;
 	char *b = message;
-	a[0]=to; a[1]=priority; a[2]=sequence_number;
+	
+	a[0]=to; a[1]=priority; a[2]=sequence;
+	
 	
 	for (unsigned char i=3; i<15; i++) 
 	{
 		if (*b) {
 			a[i]=*b;
-			b++;
+			*b++;
 		}
 	}
-	
-	*(unsigned char *) $D64A = $0A;
+
+/*	
+	while (*b) {
+		*a++ = *b++;
+		}
+		
+*/
+	*(unsigned char *) $D64A = $00;
 	asm { nop }
 }	
